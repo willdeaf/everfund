@@ -1,3 +1,10 @@
+export enum INTERVAL {
+  DAY = 'day', 
+  WEEK = 'week',
+  MONTH = 'month',
+  YEAR = 'year'
+}
+
 export type SuccessResponse = {
   /** Donation Id ie d_XXXXXXX */
   id: string
@@ -42,4 +49,75 @@ export type ModalProps = {
   onSuccess(data: SuccessResponse): void
   onFailure(data: Record<string, any>): void
   onClose(): void
+}
+
+
+export type CreateArgs = {
+  paymentDestinationId: string,
+  amount: number,
+  currency?: string,
+  paymentType: string,
+  recurringArguments?: {
+    interval: INTERVAL,
+    intervalCount: number
+  },
+  liveMode: boolean,
+  giftAid?: {
+    title: string,
+    firstName: string,
+    city: string,
+    county?: string,
+    line1: string,
+    line2?: string,
+    postalCode?: string,
+    state: string
+  },
+  gdprMarketingConsent?: {
+    phoneNumber: boolean,
+    email: boolean,
+    homeAddress: boolean,
+  },
+  metadata?: [
+    {
+      id: string,
+      value: string
+    }
+  ]
+}
+
+export type doAjaxArgs = {
+  url: string,
+  data?: {},
+  httpMethod: string,
+}
+
+export type UpdateArgs = {
+  id: string,
+  amount?: number,
+  paymentType?: string,
+  recurringArguments?: {
+    interval: INTERVAL,
+    intervalCount: number
+  },
+  giftAid?: {
+    title: string,
+    firstName: string,
+    city: string,
+    county?: string,
+    line1: string,
+    line2?: string,
+    postalCode?: string,
+    state: string
+  },
+  gdprMarketingConsent?: {
+    phoneNumber: boolean,
+    email: boolean,
+    homeAddress: boolean,
+  },
+  metadata?: [
+    {
+      id: string,
+      value: string
+    }
+  ]
 }
