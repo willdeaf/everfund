@@ -1,4 +1,4 @@
-# EverFund Vue Example
+# Everfund Vue Example
 
 ## Project setup
 

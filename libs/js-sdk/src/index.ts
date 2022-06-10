@@ -1,11 +1,14 @@
 import EverfundWidget from "./donationWidget"
-import EverFundHeadless from "./headless"
+import EverfundHeadless from "./headless"
 
-const everfund = (headless?: boolean) => {
-    if (headless) {
-        return new EverFundHeadless()
-    }
-    return new EverfundWidget()
+const everfund: {
+  (headless: true): typeof EverfundHeadless
+  (headless: false): typeof EverfundWidget
+} = (headless: boolean): any => {
+  if (headless) {
+    return EverfundHeadless
+  }
+  return new EverfundWidget()
 }
 
 export default everfund
