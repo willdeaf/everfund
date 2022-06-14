@@ -1,6 +1,6 @@
+import { stripe_public_key } from "../utils/keys"
 import { INTERVAL } from "../types"
 import type stripe from "stripe"
-
 declare global {
   interface Window {
     Stripe: stripe
@@ -41,11 +41,8 @@ export type CreateArgs = {
 }
 
 const create = async (data: CreateArgs) => {
-  // let pk_key = process.env.STIPE_PUBLIC_KEY
   //@ts-ignore
-  const stripe = window.Stripe(
-    "pk_test_51FJzh0KqZmCfCER4NH2ycKeZM56Xn0wSgaI9QlIfZDQSqgcVuXbkqf39fl4Ey5Y9xfcxpLV6p98qIKFM6QA5Ur5y00nOEtnaNT"
-  )
+  const stripe = window.Stripe(stripe_public_key)
 
   return await stripe.confirmPayment({
     //@ts-ignore
