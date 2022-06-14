@@ -1626,7 +1626,6 @@ __metadata:
     axios: ^0.27.2
     body-scroll-lock: ^4.0.0-beta.0
     core-js: ^3.22.3
-    dotenv: ^16.0.1
     element-closest: ^3.0.2
     element-remove: ^1.0.4
     genversion: ^3.1.1
@@ -4321,13 +4320,6 @@ __metadata:
     domelementtype: ^2.2.0
     domhandler: ^4.2.0
   checksum: abf7434315283e9aadc2a24bac0e00eab07ae4313b40cc239f89d84d7315ebdfd2fb1b5bf750a96bc1b4403d7237c7b2ebf60459be394d625ead4ca89b934391
-  languageName: node
-  linkType: hard
-
-"dotenv@npm:^16.0.1":
-  version: 16.0.1
-  resolution: "dotenv@npm:16.0.1"
-  checksum: f459ffce07b977b7f15d8cc4ee69cdff77d4dd8c5dc8c85d2d485ee84655352c2415f9dd09d42b5b5985ced3be186130871b34e2f3e2569ebc72fbc2e8096792
   languageName: node
   linkType: hard
 

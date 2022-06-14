@@ -1,13 +1,6 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders } from "axios"
-import * as rax from "retry-axios"
-// import { v4 as uuidv4 } from "uuid"
+import axios, { AxiosInstance, AxiosRequestHeaders } from "axios"
+import { stripe_public_key } from "./resources/utils/keys"
 
-const unAuthenticatedAdminEndpoints = {
-  "/admin/auth": "POST",
-  "/admin/users/password-token": "POST",
-  "/admin/users/reset-password": "POST",
-  "/admin/invites/accept": "POST",
-}
 export interface Config {
   baseUrl: string
   maxRetries: number
@@ -18,56 +11,48 @@ export interface RequestOptions {
   numberOfRetries?: number
 }
 
-export type RequestMethod = "DELETE" | "POST" | "GET"
-
 const defaultConfig = {
   maxRetries: 0,
-  baseUrl: "http://localhost:4567",
+  baseUrl: "http://localhost:5678",
 }
+
+export type RequestMethod = "DELETE" | "POST" | "GET"
+
+// borrowed from medusa-js-sdk
 
 class Client {
   private axiosClient: AxiosInstance
-  private config: Config
+  public stripeClient: any
+  public config: {
+    baseUrl: string
+    maxRetries: number
+    apiKey?: string | undefined
+  }
 
   constructor(config: Config) {
     /** @private @constant {AxiosInstance} */
     this.axiosClient = this.createClient({ ...defaultConfig, ...config })
-
+    /** @public @constant {Stripe} */
+    this.stripeClient = this.createStripeClient()
     /** @private @constant {Config} */
     this.config = { ...defaultConfig, ...config }
   }
 
-  shouldRetryCondition(
-    err: AxiosError,
-    numRetries: number,
-    maxRetries: number
-  ): boolean {
-    // Obviously, if we have reached max. retries we stop
-    if (numRetries >= maxRetries) {
-      return false
-    }
+  createClient(config: Config): AxiosInstance {
+    const client = axios.create({
+      baseURL: config.baseUrl,
+    })
 
-    // If no response, we assume a connection error and retry
-    if (!err.response) {
-      return true
-    }
-
-    // Retry on conflicts
-    if (err.response.status === 409) {
-      return true
-    }
-
-    // All 5xx errors are retried
-    // OBS: We are currently not retrying 500 requests, since our core needs proper error handling.
-    //      At the moment, 500 will be returned on all errors, that are not of type MedusaError.
-    if (err.response.status > 500 && err.response.status <= 599) {
-      return true
-    }
-
-    return false
+    return client
   }
 
-  // Stolen from https://github.com/stripe/stripe-node/blob/fd0a597064289b8c82f374f4747d634050739043/lib/utils.js#L282
+  createStripeClient(): AxiosInstance {
+    //@ts-ignore
+    const stripe = window.Stripe(stripe_public_key)
+
+    return stripe
+  }
+
   normalizeHeaders(obj: object): Record<string, any> {
     if (!(obj && typeof obj === "object")) {
       return obj
@@ -89,13 +74,6 @@ class Client {
       .join("-")
   }
 
-  requiresAuthentication(path: string, method: string): boolean {
-    return (
-      path.startsWith("/admin") &&
-      unAuthenticatedAdminEndpoints[path] !== method
-    )
-  }
-
   /**
    * Creates all the initial headers.
    * We add the idempotency key, if the request is configured to retry.
@@ -107,8 +85,8 @@ class Client {
    */
   setHeaders(
     userHeaders: RequestOptions,
-    method: RequestMethod,
-    path: string,
+    _method: RequestMethod,
+    _path: string,
     customHeaders: Record<string, any> = {}
   ): AxiosRequestHeaders {
     let defaultHeaders: Record<string, any> = {
@@ -116,14 +94,14 @@ class Client {
       "Content-Type": "application/json",
     }
 
-    if (this.config.apiKey && this.requiresAuthentication(path, method)) {
-      defaultHeaders = {
-        ...defaultHeaders,
-        Authorization: `Bearer ${this.config.apiKey}`,
-      }
-    }
+    // if (this.config.apiKey && this.requiresAuthentication(path, method)) {
+    //   defaultHeaders = {
+    //     ...defaultHeaders,
+    //     Authorization: `Bearer ${this.config.apiKey}`,
+    //   }
+    // }
 
-    // // only add idempotency key, if we want to retry
+    // only add idempotency key, if we want to retry
     // if (this.config.maxRetries > 0 && method === "POST") {
     //   defaultHeaders["Idempotency-Key"] = uuidv4()
     // }
@@ -134,41 +112,6 @@ class Client {
       this.normalizeHeaders(userHeaders),
       customHeaders
     )
-  }
-
-  /**
-   * Creates the axios client used for requests
-   * As part of the creation, we configure the retry conditions
-   * and the exponential backoff approach.
-   * @param {Config} config user supplied configurations
-   * @return {AxiosInstance}
-   */
-  createClient(config: Config): AxiosInstance {
-    const client = axios.create({
-      baseURL: config.baseUrl,
-    })
-
-    rax.attach(client)
-
-    client.defaults.raxConfig = {
-      instance: client,
-      retry: config.maxRetries,
-      backoffType: "exponential",
-      shouldRetry: (err: AxiosError): boolean => {
-        const cfg = rax.getConfig(err)
-        if (cfg) {
-          return this.shouldRetryCondition(
-            err,
-            cfg.currentRetryAttempt ?? 1,
-            cfg.retry ?? 3
-          )
-        } else {
-          return false
-        }
-      },
-    }
-
-    return client
   }
 
   /**

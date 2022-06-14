@@ -1,4 +1,4 @@
-import headlessSDK from "../../../libs/js-sdk/src/index"
+import headlessSDK from "@everfund/js-sdk/src/index"
 
 // This is a public sample test API key.
 // Don’t submit any personally identifiable information in requests made with this key.
@@ -60,6 +60,7 @@ async function step1Transition(donationAmount) {
 }
 
 async function initializeStripeForm(donationAmount) {
+  debugger
   const createCheckoutResult = await everfundHeadless.checkouts.create({
     guest: true,
     cover_fees: false,
@@ -124,7 +125,7 @@ async function step2handleSubmit(e) {
   e.preventDefault()
   setLoading(true)
 
-  // const donation = await everfundHeadless.donations.create(elements)
+  // const donation = await everfundHeadless...create(elements)
 
   const { error } = await stripe.confirmPayment({
     elements,

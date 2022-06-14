@@ -6,7 +6,7 @@ const everfund: {
   (headless: false): typeof EverfundWidget
 } = (headless: boolean): any => {
   if (headless) {
-    return EverfundHeadless
+    return new EverfundHeadless({})
   }
   return new EverfundWidget()
 }

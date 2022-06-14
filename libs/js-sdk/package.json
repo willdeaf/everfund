@@ -44,7 +44,6 @@
     "axios": "^0.27.2",
     "body-scroll-lock": "^4.0.0-beta.0",
     "core-js": "^3.22.3",
-    "dotenv": "^16.0.1",
     "element-closest": "^3.0.2",
     "element-remove": "^1.0.4",
     "goober": "^2.1.9",
