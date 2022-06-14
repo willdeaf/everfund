@@ -1,9 +1,4 @@
-export enum INTERVAL {
-  DAY = "day",
-  WEEK = "week",
-  MONTH = "month",
-  YEAR = "year",
-}
+export type INTERVAL = "single" | "daily" | "weekly" | "monthly" | "yearly"
 
 export type SuccessResponse = {
   /** Donation Id ie d_XXXXXXX */

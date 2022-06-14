@@ -8,7 +8,7 @@
     <!-- <link rel="stylesheet" href="stripe.css" /> -->
     <link href="./styles/index.css" rel="stylesheet" />
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="stripe.ts" defer></script>
+    <script src="stripe.ts" defer type="module"></script>
   </head>
   <body>
     <!-- Display a payment form -->
@@ -20,50 +20,53 @@
         >
           <li class="md:flex-1">
             <!-- Completed Step -->
-            <a
-              href="#"
-              class="group pl-4 py-2 flex flex-col border-l-4 border-[#1fb292] hover:border-indigo-800 md:pl-0 md:pt-4 md:pb-0 md:border-l-0 md:border-t-4"
+            <div
+              class="group pl-4 py-2 flex flex-col border-l-4 border-[#1fb292] md:pl-0 md:pt-4 md:pb-0 md:border-l-0 md:border-t-4"
+              id="timeline-step-1"
             >
               <span
-                class="text-xs text-[#1fb292] font-semibold tracking-wide uppercase group-hover:text-indigo-800"
+                class="text-xs text-[#1fb292] font-semibold tracking-wide uppercase"
+                id="timeline-step-1-text"
                 >Step 1</span
               >
               <span class="text-sm font-medium">Checkout</span>
-            </a>
+            </div>
           </li>
 
           <li class="md:flex-1">
             <!-- Current Step -->
-            <a
-              href="#"
-              class="pl-4 py-2 flex flex-col border-l-4 border-[#1fb292] md:pl-0 md:pt-4 md:pb-0 md:border-l-0 md:border-t-4"
+            <div
+              class="group pl-4 py-2 flex flex-col border-l-4 border-gray-200 md:pl-0 md:pt-4 md:pb-0 md:border-l-0 md:border-t-4"
               aria-current="step"
+              id="timeline-step-2"
             >
               <span
-                class="text-xs text-[#1fb292] font-semibold tracking-wide uppercase"
+                class="text-xs text-gray-500 font-semibold tracking-wide uppercase"
+                id="timeline-step-2-text"
                 >Step 2</span
               >
               <span class="text-sm font-medium">Donation Amount</span>
-            </a>
+            </div>
           </li>
 
           <li class="md:flex-1">
             <!-- Upcoming Step -->
-            <a
-              href="#"
-              class="group pl-4 py-2 flex flex-col border-l-4 border-gray-200 hover:border-gray-300 md:pl-0 md:pt-4 md:pb-0 md:border-l-0 md:border-t-4"
+            <div
+              class="group pl-4 py-2 flex flex-col border-l-4 border-gray-200 md:pl-0 md:pt-4 md:pb-0 md:border-l-0 md:border-t-4"
+              id="timeline-step-3"
             >
               <span
-                class="text-xs text-gray-500 font-semibold tracking-wide uppercase group-hover:text-gray-700"
+                class="text-xs text-gray-500 font-semibold tracking-wide uppercase"
+                id="timeline-step-3-text"
                 >Step 3</span
               >
               <span class="text-sm font-medium">Success</span>
-            </a>
+            </div>
           </li>
         </ol>
       </nav>
-      <div class="" id="step1container">
-        <form id="donation-amount-form">
+      <div id="step1-container">
+        <form id="step1-form">
           <div class="mb-6">
             <div>
               <label for="price" class="block text-sm font-medium text-gray-700"
@@ -102,7 +105,7 @@
           </button>
         </form>
       </div>
-      <div class="hidden" id="step2container">
+      <div class="hidden" id="step2-container">
         <form id="payment-form">
           <div id="payment-element" class="mb-6">
             <!--Stripe.js injects the Payment Element-->
@@ -115,8 +118,12 @@
             <span id="button-text">Pay now</span>
           </button>
         </form>
+        <div id="payment-message" class="hidden"></div>
       </div>
-      <div id="payment-message" class="hidden"></div>
+
+      <div id="step3-container" class="hidden"=>
+        <div class="text-center mt-4">Payment Successful!</div>
+      </div>
     </div>
     <div>
       <a

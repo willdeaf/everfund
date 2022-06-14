@@ -1,24 +1,20 @@
-// import get from "lodash.get"
+// import get from "lodash/get"
+import stripe from "stripe"
+
+declare global {
+  interface Window {
+    Stripe: stripe
+  }
+}
 
 const LOADING_SCRIPTS = {}
 // const CARD_ELEMENTS = {}
 // const API = {}
 
 export const init = async () => {
-  //   if (params.card) {
-  // if (!payMethods.card) {
-  //   console.error(
-  //     `Payment element error: credit card payments are disabled. See Payment settings in the Swell dashboard for details.`
-  //   )
-  //@ts-ignore
   if (!window.Stripe) {
     await loadScript("stripe-js", "https://js.stripe.com/v3/")
     //@ts-ignore
-    const stripe = window.Stripe(
-      "pk_test_51FJzh0KqZmCfCER4NH2ycKeZM56Xn0wSgaI9QlIfZDQSqgcVuXbkqf39fl4Ey5Y9xfcxpLV6p98qIKFM6QA5Ur5y00nOEtnaNT"
-    )
-
-    console.log(stripe)
   }
   //   await stripeElements(payMethods, params)
   // }

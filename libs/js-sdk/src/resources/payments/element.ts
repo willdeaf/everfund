@@ -1,4 +1,4 @@
-import get from "lodash.get"
+import get from "lodash/get"
 
 export const stripeElements = async (
   payMethods: { card: { publishable_key: any } },

@@ -1,7 +1,11 @@
+import headlessSDK from "../../../libs/js-sdk/src/index"
+
 // This is a public sample test API key.
 // Don’t submit any personally identifiable information in requests made with this key.
 // Sign in to see your own test API key embedded in code samples.
-const stripe = Stripe(
+
+//@ts-ignore
+const stripe = window.Stripe(
   "pk_test_51FJzh0KqZmCfCER4NH2ycKeZM56Xn0wSgaI9QlIfZDQSqgcVuXbkqf39fl4Ey5Y9xfcxpLV6p98qIKFM6QA5Ur5y00nOEtnaNT"
 )
 
@@ -9,31 +13,68 @@ const stripe = Stripe(
 
 let elements
 
-initialize()
 checkStatus()
 
-document.querySelector("#payment-form").addEventListener("submit", handleSubmit)
+const everfundHeadless = headlessSDK(true)
+
+document
+  .querySelector("#payment-form")
+  .addEventListener("submit", step2handleSubmit)
+
+document
+  .querySelector("#step1-form")
+  .addEventListener("submit", step1handleSubmit)
+
+// ==========================
+// Step 1
+// ==========================
+async function step1handleSubmit(e) {
+  e.preventDefault()
+  setLoading(true)
+
+  var nameValue = document.getElementById("price").value
+  console.log(nameValue)
+  await step1Transition(nameValue)
+}
 
 // Fetches a payment intent and captures the client secret
-async function initialize() {
-  const response = await fetch("http://localhost:4567/checkouts", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      guest: true,
-      cover_fees: false,
-      card_locale: "US",
-      item: {
-        id: "i_cdmOvAS5sULG6BYaTKybmffF",
-        interval: "single",
-        amount: 2000,
-        currency: "usd",
-      },
-    }),
+
+// ==========================
+// Step2Handle
+// ==========================
+
+async function step1Transition(donationAmount) {
+  const container1 = document.querySelector("#step1-container")
+  const container2 = document.querySelector("#step2-container")
+
+  const timelineStep2Text = document.querySelector("#timeline-step-2-text")
+  // await setStepsUI2()
+
+  timelineStep2Text.classList.add("text-[#1fb292]")
+  timelineStep2Text.classList.remove("text-gray-500")
+  timelineStep2Text.classList.remove("group-hover:text-gray-700")
+
+  await initializeStripeForm(donationAmount)
+  container1.classList.add("hidden")
+  container2.classList.remove("hidden")
+}
+
+async function initializeStripeForm(donationAmount) {
+  const createCheckoutResult = await everfundHeadless.checkouts.create({
+    guest: true,
+    cover_fees: false,
+    card_locale: "GB",
+    item: {
+      id: "i_5G2Xr5qAcvjf54tuoDS1BfmB",
+      interval: "single",
+      amount: Number(donationAmount) * 100,
+      currency: "gbp",
+    },
   })
-  const data = await response.json()
-  console.log(data.data)
-  const { payment_intent_secret } = data.data.payment
+
+  console.log(createCheckoutResult)
+
+  const { payment_intent_secret } = createCheckoutResult.data.payment
 
   const appearance = {
     theme: "flat",
@@ -55,6 +96,11 @@ async function initialize() {
       },
     },
   }
+
+  // const appearance = {
+  //   theme: "stripe",
+  // }
+  //   clientSecret: payment_intent_secret,
   elements = stripe.elements({
     appearance,
     clientSecret: payment_intent_secret,
@@ -62,11 +108,23 @@ async function initialize() {
 
   const paymentElement = elements.create("payment")
   paymentElement.mount("#payment-element")
+
+  //
+  // elements = await everfundHeadless.donations.createElements({
+  //   appearance,
+  //   clientSecret: payment_intent_secret,
+  // })
+  //
+
+  // const paymentElement = elements.create("payment")
+  // paymentElement.mount("#payment-element")
 }
 
-async function handleSubmit(e) {
+async function step2handleSubmit(e) {
   e.preventDefault()
   setLoading(true)
+
+  // const donation = await everfundHeadless.donations.create(elements)
 
   const { error } = await stripe.confirmPayment({
     elements,
@@ -87,7 +145,7 @@ async function handleSubmit(e) {
     showMessage("An unexpected error occurred.")
   }
 
-  setLoading(false)
+  await setLoading(false)
 }
 
 // Fetches the payment intent status after payment submission
@@ -104,8 +162,10 @@ async function checkStatus() {
 
   switch (paymentIntent.status) {
     case "succeeded":
-      hidePaymentForm()
-      showMessage("Payment succeeded!")
+      moveTimelineForward("#timeline-step-2")
+      moveTimelineForward("#timeline-step-3")
+      showPaymentComplete()
+
       break
     case "processing":
       showMessage("Your payment is processing.")
@@ -118,8 +178,9 @@ async function checkStatus() {
       break
   }
 }
-
-// ------- UI helpers -------
+// ==========================
+// UI helpers
+// ==========================
 
 function showMessage(messageText) {
   const messageContainer = document.querySelector("#payment-message")
@@ -133,8 +194,33 @@ function showMessage(messageText) {
   }, 4000)
 }
 
-function hidePaymentForm() {
-  document.querySelector("#payment-form")?.remove()
+// function showPaymentForm() {
+//   const s1container = document.querySelector(`#step1-container`)
+//   // const s2container = document.querySelector(`step2-container`)
+//   s1container.classList.add("hidden")
+//   // s2container.classList.remove("hidden")
+// }
+
+function showPaymentComplete() {
+  const s1container = document.querySelector(`#step1-container`)
+  const s2container = document.querySelector(`#step2-container`)
+  const s3container = document.querySelector(`#step3-container`)
+  s2container.classList.add("hidden")
+
+  s1container.classList.contains("hidden") &&
+    s1container.classList.add("hidden")
+  s3container.classList.remove("hidden")
+}
+
+function moveTimelineForward(id) {
+  const textDiv = document.querySelector(`${id}-text`)
+  const borderDiv = document.querySelector(id)
+  textDiv.classList.add("text-[#1fb292]")
+  textDiv.classList.contains("text-gray-500") &&
+    textDiv.classList.remove("text-gray-500")
+  borderDiv.classList.add("border-[#1fb292]")
+  textDiv.classList.contains("border-gray-200") &&
+    borderDiv.classList.remove("border-gray-200")
 }
 
 // Show a spinner on payment submission
